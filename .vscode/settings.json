@@ -1,0 +1,9 @@
+{
+    "javascript.format.enable": false,
+    "javascript.format.insertSpaceAfterConstructor": true,
+    "javascript.inlayHints.enumMemberValues.enabled": true,
+    "javascript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": false,
+    "[prisma]": {
+        "editor.formatOnSave": true
+    }
+}
