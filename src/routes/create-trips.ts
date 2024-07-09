@@ -1,27 +1,39 @@
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from 'zod';
+import { prisma } from '../lib/prisma';
+import dayjs from 'dayjs';
+import { error } from "console";
 
 export async function createTrip(app: FastifyInstance) {
-    app.withTypeProvider<ZodTypeProvider>().post ('/trips', {
+    app.withTypeProvider<ZodTypeProvider>().post('/trips', {
         schema: {
             body: z.object({
                 destination: z.string().min(4),
                 starts_at: z.coerce.date(),
                 ends_at: z.coerce.date(),
+                owner_name: z.string(),
+                owner_email: z.string().email(),
             })
         },
     }, async (request) => {
-        const { 
-            destination,
-            starts_at,
-            ends_at
-        } = request.body
+        const { destination, starts_at, ends_at, owner_name, owner_email } = request.body
 
-        return{
-            destination, 
-            starts_at,
-            ends_at
+        if (dayjs(starts_at).isBefore(new Date())) {
+            throw new Error ('Invaid trip')
         }
+
+        if (dayjs(ends_at).isBefore(starts_at)){
+            throw new Error ('Invalid trip and date')
+        }
+
+        const trip = await prisma.trip.create({
+            data :{ 
+                destination,
+                starts_at,
+                ends_at
+            }
+        })
+        return{ tripId: trip.id }
     })
 }
